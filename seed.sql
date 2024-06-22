@@ -15,8 +15,8 @@ CREATE TABLE video_tags (
     user_id INT NOT NULL,
     video_id INT NOT NULL,
     PRIMARY KEY (user_id, video_id),
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    FOREIGN KEY (video_id) REFERENCES videos(id) ON DELETE CASCADE
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (video_id) REFERENCES videos(id)
 );
 
 -- Insert sample data into users table
