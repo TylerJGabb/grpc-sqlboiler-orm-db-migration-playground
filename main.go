@@ -56,8 +56,15 @@ func main() {
 
 	invoiceItems, err = invoice.Products().All(context.Background(), db)
 	dieIf(err)
-
+	
 	for _, item := range invoiceItems {
 		fmt.Println("    item:", item.Sku, item)
 	}
+
+	invoice.SetProducts(context.Background(), db, false)
+	invoiceItems, err = invoice.Products().All(context.Background(), db)
+	dieIf(err)
+	fmt.Println("    after removel:", len(invoiceItems))
+
+
 }
