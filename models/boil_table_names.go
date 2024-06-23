@@ -4,11 +4,19 @@
 package models
 
 var TableNames = struct {
-	Users     string
-	VideoTags string
-	Videos    string
+	Customers    string
+	InvoiceItems string
+	Invoices     string
+	Products     string
+	Users        string
+	VideoTags    string
+	Videos       string
 }{
-	Users:     "users",
-	VideoTags: "video_tags",
-	Videos:    "videos",
+	Customers:    "customers",
+	InvoiceItems: "invoice_items",
+	Invoices:     "invoices",
+	Products:     "products",
+	Users:        "users",
+	VideoTags:    "video_tags",
+	Videos:       "videos",
 }

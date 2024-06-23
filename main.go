@@ -27,35 +27,37 @@ func main() {
 
 	dieIf(db.Ping())
 	
-	users, err := models.Users().All(context.Background(), db)
+	customer1, err := models.Customers(qm.Where("id = ?", 1)).One(context.Background(), db)
 	dieIf(err)
 
-	for _, user  := range(users) {
-		fmt.Println(user)
+	fmt.Println("customer1:", customer1.Name)
+
+	invoice, err := customer1.Invoices().One(context.Background(), db)
+	dieIf(err)
+
+	fmt.Println("  invoice:", invoice.ID)
+
+	invoiceItems, err := invoice.Products().All(context.Background(), db)
+	dieIf(err)
+
+	for _, item := range invoiceItems {
+		fmt.Println("    item:", item.Sku, item)
 	}
 
-	doesIt, err := models.Videos(qm.Where("id = ?", 1)).Exists(context.Background(), db)
+	customer2, err := models.Customers(qm.Where("id = ?", 2)).One(context.Background(), db)
 	dieIf(err)
 
-	fmt.Println("does it?", doesIt)
+	fmt.Println("customer2:", customer2.Name)
 
-	user, err := models.Users().One(context.Background(), db)
+	invoice, err = customer2.Invoices().One(context.Background(), db)
 	dieIf(err)
 
-	fmt.Println("user: ", user.ID, user.Name)
+	fmt.Println("  invoice:", invoice.ID)
 
-	nVideos, err := user.Videos().Count(context.Background(), db)
+	invoiceItems, err = invoice.Products().All(context.Background(), db)
 	dieIf(err)
 
-	fmt.Println("  nVideos:", nVideos)
-
-	vid1, vid2 := &models.Video{Name: "a"}, &models.Video{Name: "b"}
-	err = user.AddVideos(context.Background(), db, true, vid1, vid2)
-	dieIf(err)
-
-	fmt.Println("user:", user.Name)
-	nVideos, err = user.Videos().Count(context.Background(), db)
-	dieIf(err)
-
-	fmt.Println("  nVideos:", nVideos)
+	for _, item := range invoiceItems {
+		fmt.Println("    item:", item.Sku, item)
+	}
 }
