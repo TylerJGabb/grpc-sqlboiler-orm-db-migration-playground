@@ -517,7 +517,7 @@ func (productL) LoadInvoices(ctx context.Context, e boil.ContextExecutor, singul
 	}
 
 	query := NewQuery(
-		qm.Select("\"invoices\".\"id\", \"invoices\".\"customer_id\", \"invoices\".\"total\", \"a\".\"product_id\""),
+		qm.Select("\"invoices\".\"id\", \"invoices\".\"customer_id\", \"invoices\".\"total\", \"invoices\".\"created_at\", \"a\".\"product_id\""),
 		qm.From("\"invoices\""),
 		qm.InnerJoin("\"invoice_items\" as \"a\" on \"invoices\".\"id\" = \"a\".\"invoice_id\""),
 		qm.WhereIn("\"a\".\"product_id\" in ?", argsSlice...),
@@ -538,7 +538,7 @@ func (productL) LoadInvoices(ctx context.Context, e boil.ContextExecutor, singul
 		one := new(Invoice)
 		var localJoinCol int
 
-		err = results.Scan(&one.ID, &one.CustomerID, &one.Total, &localJoinCol)
+		err = results.Scan(&one.ID, &one.CustomerID, &one.Total, &one.CreatedAt, &localJoinCol)
 		if err != nil {
 			return errors.Wrap(err, "failed to scan eager loaded results for invoices")
 		}

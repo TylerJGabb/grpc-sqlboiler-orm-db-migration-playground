@@ -9,5 +9,5 @@ add-enum-types = true
   port   = 5432
   user   = "user"
   pass   = "pass"
-  blacklist = ["migrations"]
+  blacklist = ["gorp_migrations"]
   sslmode = "disable"

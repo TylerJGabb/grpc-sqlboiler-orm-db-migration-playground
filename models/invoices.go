@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/friendsofgo/errors"
+	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
@@ -23,9 +24,10 @@ import (
 
 // Invoice is an object representing the database table.
 type Invoice struct {
-	ID         int `boil:"id" json:"id" toml:"id" yaml:"id"`
-	CustomerID int `boil:"customer_id" json:"customer_id" toml:"customer_id" yaml:"customer_id"`
-	Total      int `boil:"total" json:"total" toml:"total" yaml:"total"`
+	ID         int       `boil:"id" json:"id" toml:"id" yaml:"id"`
+	CustomerID int       `boil:"customer_id" json:"customer_id" toml:"customer_id" yaml:"customer_id"`
+	Total      int       `boil:"total" json:"total" toml:"total" yaml:"total"`
+	CreatedAt  null.Time `boil:"created_at" json:"created_at,omitempty" toml:"created_at" yaml:"created_at,omitempty"`
 
 	R *invoiceR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L invoiceL  `boil:"-" json:"-" toml:"-" yaml:"-"`
@@ -35,32 +37,62 @@ var InvoiceColumns = struct {
 	ID         string
 	CustomerID string
 	Total      string
+	CreatedAt  string
 }{
 	ID:         "id",
 	CustomerID: "customer_id",
 	Total:      "total",
+	CreatedAt:  "created_at",
 }
 
 var InvoiceTableColumns = struct {
 	ID         string
 	CustomerID string
 	Total      string
+	CreatedAt  string
 }{
 	ID:         "invoices.id",
 	CustomerID: "invoices.customer_id",
 	Total:      "invoices.total",
+	CreatedAt:  "invoices.created_at",
 }
 
 // Generated where
+
+type whereHelpernull_Time struct{ field string }
+
+func (w whereHelpernull_Time) EQ(x null.Time) qm.QueryMod {
+	return qmhelper.WhereNullEQ(w.field, false, x)
+}
+func (w whereHelpernull_Time) NEQ(x null.Time) qm.QueryMod {
+	return qmhelper.WhereNullEQ(w.field, true, x)
+}
+func (w whereHelpernull_Time) LT(x null.Time) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.LT, x)
+}
+func (w whereHelpernull_Time) LTE(x null.Time) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.LTE, x)
+}
+func (w whereHelpernull_Time) GT(x null.Time) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.GT, x)
+}
+func (w whereHelpernull_Time) GTE(x null.Time) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.GTE, x)
+}
+
+func (w whereHelpernull_Time) IsNull() qm.QueryMod    { return qmhelper.WhereIsNull(w.field) }
+func (w whereHelpernull_Time) IsNotNull() qm.QueryMod { return qmhelper.WhereIsNotNull(w.field) }
 
 var InvoiceWhere = struct {
 	ID         whereHelperint
 	CustomerID whereHelperint
 	Total      whereHelperint
+	CreatedAt  whereHelpernull_Time
 }{
 	ID:         whereHelperint{field: "\"invoices\".\"id\""},
 	CustomerID: whereHelperint{field: "\"invoices\".\"customer_id\""},
 	Total:      whereHelperint{field: "\"invoices\".\"total\""},
+	CreatedAt:  whereHelpernull_Time{field: "\"invoices\".\"created_at\""},
 }
 
 // InvoiceRels is where relationship names are stored.
@@ -101,9 +133,9 @@ func (r *invoiceR) GetProducts() ProductSlice {
 type invoiceL struct{}
 
 var (
-	invoiceAllColumns            = []string{"id", "customer_id", "total"}
+	invoiceAllColumns            = []string{"id", "customer_id", "total", "created_at"}
 	invoiceColumnsWithoutDefault = []string{"customer_id", "total"}
-	invoiceColumnsWithDefault    = []string{"id"}
+	invoiceColumnsWithDefault    = []string{"id", "created_at"}
 	invoicePrimaryKeyColumns     = []string{"id"}
 	invoiceGeneratedColumns      = []string{}
 )
@@ -930,6 +962,13 @@ func (o *Invoice) Insert(ctx context.Context, exec boil.ContextExecutor, columns
 	}
 
 	var err error
+	if !boil.TimestampsAreSkipped(ctx) {
+		currTime := time.Now().In(boil.GetLocation())
+
+		if queries.MustTime(o.CreatedAt).IsZero() {
+			queries.SetScanner(&o.CreatedAt, currTime)
+		}
+	}
 
 	if err := o.doBeforeInsertHooks(ctx, exec); err != nil {
 		return err
@@ -1134,6 +1173,13 @@ func (o InvoiceSlice) UpdateAll(ctx context.Context, exec boil.ContextExecutor, 
 func (o *Invoice) Upsert(ctx context.Context, exec boil.ContextExecutor, updateOnConflict bool, conflictColumns []string, updateColumns, insertColumns boil.Columns, opts ...UpsertOptionFunc) error {
 	if o == nil {
 		return errors.New("models: no invoices provided for upsert")
+	}
+	if !boil.TimestampsAreSkipped(ctx) {
+		currTime := time.Now().In(boil.GetLocation())
+
+		if queries.MustTime(o.CreatedAt).IsZero() {
+			queries.SetScanner(&o.CreatedAt, currTime)
+		}
 	}
 
 	if err := o.doBeforeUpsertHooks(ctx, exec); err != nil {

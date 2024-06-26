@@ -8,15 +8,9 @@ var TableNames = struct {
 	InvoiceItems string
 	Invoices     string
 	Products     string
-	Users        string
-	VideoTags    string
-	Videos       string
 }{
 	Customers:    "customers",
 	InvoiceItems: "invoice_items",
 	Invoices:     "invoices",
 	Products:     "products",
-	Users:        "users",
-	VideoTags:    "video_tags",
-	Videos:       "videos",
 }
