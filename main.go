@@ -52,4 +52,15 @@ func main() {
 			}
 		}
 	}
+
+	println()
+
+	crs, _ := models.ChangeRequests(qm.Load("StatusEvents")).All(context.Background(), db)
+	for _, cr := range crs {
+		fmt.Println("change request:", cr.ID)
+		for _, se := range cr.R.StatusEvents {
+			fmt.Println("  status event:", se.Timestamp, se.Status)
+		}
+	}
+
 }
