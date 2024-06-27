@@ -13,7 +13,7 @@ service ChangeRequestService {
   // general rpcs
   rpc GetChangeRequest(GetChangeRequestRequest) returns (ChangeRequest) {}
   rpc GetAllChangeRequests(GetAllChangeRequestsRequest) returns (ChangeRequestList) {}
-  
+  rpc UpdateChangeRequest(UpdateChangeRequestRequest) returns (UpdateChangeRequestResponse) {}
   // coming from github webhooks/github-actions
   rpc ReportPullRequestClosed(ReportPullRequestClosedRequest) returns (ReportPullRequestClosedResponse) {}
   rpc ReportDefaultBranchUpdated(ReportDefaultBranchUpdatedRequest) returns (ReportDefaultBranchUpdatedResponse) {}
@@ -24,8 +24,12 @@ service ChangeRequestService {
   rpc UpdateTMTJobStatus(UpdateJobStatusRequest) returns (UpdateJobStatusResponse) {}
   rpc GetTMTJob(GetTMTJobRequest) returns (TMTJob) {}
   rpc GetRebaseJob(GetRebaseJobRequest) returns (RebaseJob) {}
-  
+}
 
+enum JobTypeForWire {
+  JT_UNKNOWN = 0;
+  JT_TMT = 1;
+  JT_REBASE = 2;
 }
 
 message CreateTMTProjectRequest {
@@ -43,8 +47,8 @@ message CreateTMTProjectResponse {
 }
 
 enum ChangeRequestType {
-  UNKNOWN = 0;
-  TMT = 1;
+  CRT_UNKNOWN = 0;
+  CRT_TMT = 1;
 }
 
 message ChangeRequest {
@@ -64,6 +68,18 @@ message GetAllChangeRequestsRequest {}
 
 message ChangeRequestList {
   repeated ChangeRequest change_requests = 1;
+}
+
+message UpdateChangeRequestRequest {
+  int32 change_request_id = 1;
+  string branch_name = 2;
+  string pull_request_url = 3;
+  string pull_request_id = 4;
+}
+
+message UpdateChangeRequestResponse {
+  bool success = 1;
+  string error_message = 2;
 }
 
 message GetTMTJobRequest {

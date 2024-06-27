@@ -9,6 +9,7 @@ require (
 	github.com/googleapis/gax-go/v2 v2.12.5
 	github.com/lib/pq v1.10.7
 	github.com/rubenv/sql-migrate v1.6.1
+	github.com/sethvargo/go-envconfig v1.0.3
 	github.com/volatiletech/null/v8 v8.1.2
 	github.com/volatiletech/sqlboiler/v4 v4.16.2
 	github.com/volatiletech/strmangle v0.0.6

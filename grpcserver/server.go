@@ -26,6 +26,39 @@ type Server struct {
 	crspb.UnimplementedChangeRequestServiceServer
 }
 
+func (s *Server) ReportDefaultBranchUpdated(
+	ctx context.Context,
+	req *crspb.ReportDefaultBranchUpdatedRequest,
+) (*crspb.ReportDefaultBranchUpdatedResponse, error) {
+	crs, err := s.repo.GetAllChangeRequests()
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	for _, cr := range crs {
+		rebaseJobModel := &models.RebaseJob{
+			Status: crspb.JobStatus_PENDING.String(),
+		}
+		err := s.repo.AddRebaseJob(cr, rebaseJobModel)
+		if err != nil {
+			// continue, because we want to update all CRs
+			// but log the error
+		}
+		job := &jobs.RebaseJob{
+			JobId:           rebaseJobModel.ID,
+			ChangeRequestId: cr.ID,
+		}
+		_, err = s.runner.RunJob(job)
+		if err != nil {
+			// continue, because we want to update all CRs
+			// but log the error
+		}
+	}
+	return &crspb.ReportDefaultBranchUpdatedResponse{
+		Success: true,
+	}, nil
+}
+
 func NewServer(db *sql.DB) *Server {
 	return &Server{}
 }

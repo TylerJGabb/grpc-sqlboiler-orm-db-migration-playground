@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"embed"
+	"flag"
 	"fmt"
 	"os"
 	"sqlboiler-sb/models"
@@ -36,13 +37,20 @@ func main() {
 
 	dieIf(db.Ping())
 
-	migrations := migrate.EmbedFileSystemMigrationSource{
-		FileSystem: migrations,
-		Root:       "migrate",
+	// Parse command line flags
+	migrateFlag := flag.Bool("migrate", false, "run migrations")
+	flag.Parse()
+
+	if *migrateFlag {
+		migrations := migrate.EmbedFileSystemMigrationSource{
+			FileSystem: migrations,
+			Root:       "migrate",
+		}
+		n, err := migrate.Exec(db, "postgres", migrations, migrate.Up)
+		dieIf(err)
+		println("Applied", n, "migrations")
 	}
-	n, err := migrate.Exec(db, "postgres", migrations, migrate.Up)
-	dieIf(err)
-	println("Applied", n, "migrations")
+	flag.Parse()
 
 	cr := &models.ChangeRequest{
 		CreatedBy: "tyler@dv01.co", // get this from request

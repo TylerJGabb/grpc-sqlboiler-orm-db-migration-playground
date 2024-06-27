@@ -22,6 +22,7 @@ const (
 	ChangeRequestService_CreateTMTProject_FullMethodName           = "/crspb.ChangeRequestService/CreateTMTProject"
 	ChangeRequestService_GetChangeRequest_FullMethodName           = "/crspb.ChangeRequestService/GetChangeRequest"
 	ChangeRequestService_GetAllChangeRequests_FullMethodName       = "/crspb.ChangeRequestService/GetAllChangeRequests"
+	ChangeRequestService_UpdateChangeRequest_FullMethodName        = "/crspb.ChangeRequestService/UpdateChangeRequest"
 	ChangeRequestService_ReportPullRequestClosed_FullMethodName    = "/crspb.ChangeRequestService/ReportPullRequestClosed"
 	ChangeRequestService_ReportDefaultBranchUpdated_FullMethodName = "/crspb.ChangeRequestService/ReportDefaultBranchUpdated"
 	ChangeRequestService_ReportConflictResolved_FullMethodName     = "/crspb.ChangeRequestService/ReportConflictResolved"
@@ -40,6 +41,7 @@ type ChangeRequestServiceClient interface {
 	// general rpcs
 	GetChangeRequest(ctx context.Context, in *GetChangeRequestRequest, opts ...grpc.CallOption) (*ChangeRequest, error)
 	GetAllChangeRequests(ctx context.Context, in *GetAllChangeRequestsRequest, opts ...grpc.CallOption) (*ChangeRequestList, error)
+	UpdateChangeRequest(ctx context.Context, in *UpdateChangeRequestRequest, opts ...grpc.CallOption) (*UpdateChangeRequestResponse, error)
 	// coming from github webhooks/github-actions
 	ReportPullRequestClosed(ctx context.Context, in *ReportPullRequestClosedRequest, opts ...grpc.CallOption) (*ReportPullRequestClosedResponse, error)
 	ReportDefaultBranchUpdated(ctx context.Context, in *ReportDefaultBranchUpdatedRequest, opts ...grpc.CallOption) (*ReportDefaultBranchUpdatedResponse, error)
@@ -80,6 +82,15 @@ func (c *changeRequestServiceClient) GetChangeRequest(ctx context.Context, in *G
 func (c *changeRequestServiceClient) GetAllChangeRequests(ctx context.Context, in *GetAllChangeRequestsRequest, opts ...grpc.CallOption) (*ChangeRequestList, error) {
 	out := new(ChangeRequestList)
 	err := c.cc.Invoke(ctx, ChangeRequestService_GetAllChangeRequests_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *changeRequestServiceClient) UpdateChangeRequest(ctx context.Context, in *UpdateChangeRequestRequest, opts ...grpc.CallOption) (*UpdateChangeRequestResponse, error) {
+	out := new(UpdateChangeRequestResponse)
+	err := c.cc.Invoke(ctx, ChangeRequestService_UpdateChangeRequest_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -158,6 +169,7 @@ type ChangeRequestServiceServer interface {
 	// general rpcs
 	GetChangeRequest(context.Context, *GetChangeRequestRequest) (*ChangeRequest, error)
 	GetAllChangeRequests(context.Context, *GetAllChangeRequestsRequest) (*ChangeRequestList, error)
+	UpdateChangeRequest(context.Context, *UpdateChangeRequestRequest) (*UpdateChangeRequestResponse, error)
 	// coming from github webhooks/github-actions
 	ReportPullRequestClosed(context.Context, *ReportPullRequestClosedRequest) (*ReportPullRequestClosedResponse, error)
 	ReportDefaultBranchUpdated(context.Context, *ReportDefaultBranchUpdatedRequest) (*ReportDefaultBranchUpdatedResponse, error)
@@ -182,6 +194,9 @@ func (UnimplementedChangeRequestServiceServer) GetChangeRequest(context.Context,
 }
 func (UnimplementedChangeRequestServiceServer) GetAllChangeRequests(context.Context, *GetAllChangeRequestsRequest) (*ChangeRequestList, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAllChangeRequests not implemented")
+}
+func (UnimplementedChangeRequestServiceServer) UpdateChangeRequest(context.Context, *UpdateChangeRequestRequest) (*UpdateChangeRequestResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateChangeRequest not implemented")
 }
 func (UnimplementedChangeRequestServiceServer) ReportPullRequestClosed(context.Context, *ReportPullRequestClosedRequest) (*ReportPullRequestClosedResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ReportPullRequestClosed not implemented")
@@ -267,6 +282,24 @@ func _ChangeRequestService_GetAllChangeRequests_Handler(srv interface{}, ctx con
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ChangeRequestServiceServer).GetAllChangeRequests(ctx, req.(*GetAllChangeRequestsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ChangeRequestService_UpdateChangeRequest_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateChangeRequestRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ChangeRequestServiceServer).UpdateChangeRequest(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ChangeRequestService_UpdateChangeRequest_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ChangeRequestServiceServer).UpdateChangeRequest(ctx, req.(*UpdateChangeRequestRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -415,6 +448,10 @@ var ChangeRequestService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetAllChangeRequests",
 			Handler:    _ChangeRequestService_GetAllChangeRequests_Handler,
+		},
+		{
+			MethodName: "UpdateChangeRequest",
+			Handler:    _ChangeRequestService_UpdateChangeRequest_Handler,
 		},
 		{
 			MethodName: "ReportPullRequestClosed",
