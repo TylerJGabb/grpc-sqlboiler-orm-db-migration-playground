@@ -54,7 +54,7 @@ func main() {
 
 	cr := &models.ChangeRequest{
 		CreatedBy: "tyler@dv01.co", // get this from request
-		Type:      crspb.ChangeRequestType_TMT.String(),
+		Type:      crspb.ChangeRequestType_CRT_TMT.String(),
 	}
 	err = cr.Insert(
 		context.Background(),

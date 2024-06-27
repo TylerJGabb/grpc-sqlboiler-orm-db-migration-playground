@@ -8,6 +8,7 @@ import (
 	"sqlboiler-sb/pkg/crspb"
 	"sqlboiler-sb/repository"
 
+	"github.com/volatiletech/null/v8"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -15,7 +16,7 @@ import (
 func requestTypeHelper(crType string) crspb.ChangeRequestType {
 	typeInt, ok := crspb.ChangeRequestType_value[crType]
 	if !ok {
-		return crspb.ChangeRequestType_UNKNOWN
+		return crspb.ChangeRequestType_CRT_UNKNOWN
 	}
 	return crspb.ChangeRequestType(typeInt)
 }
@@ -24,6 +25,26 @@ type Server struct {
 	repo   repository.ChangeRequestRepository
 	runner jobs.CloudRunJobRunner
 	crspb.UnimplementedChangeRequestServiceServer
+}
+
+func (s *Server) UpdateChangeRequest(
+	ctx context.Context,
+	req *crspb.UpdateChangeRequestRequest,
+) (*crspb.UpdateChangeRequestResponse, error) {
+	cr, err := s.repo.GetChangeRequest(int(req.ChangeRequestId))
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+	cr.GithubPRID = null.StringFrom(req.PullRequestId)
+	cr.GithubPRURL = null.StringFrom(req.PullRequestUrl)
+	cr.GithubBranchName = null.StringFrom(req.BranchName)
+	err = s.repo.UpdateChangeRequest(cr)
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+	return &crspb.UpdateChangeRequestResponse{
+		Success: true,
+	}, nil
 }
 
 func (s *Server) ReportDefaultBranchUpdated(
@@ -70,7 +91,7 @@ func (s *Server) CreateTMTProject(
 
 	cr := &models.ChangeRequest{
 		CreatedBy: req.UserEmail,
-		Type:      crspb.ChangeRequestType_TMT.String(),
+		Type:      crspb.ChangeRequestType_CRT_TMT.String(),
 	}
 	err := s.repo.CreateChangeRequest(cr)
 	if err != nil {

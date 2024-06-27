@@ -24,52 +24,62 @@ import (
 
 // ChangeRequest is an object representing the database table.
 type ChangeRequest struct {
-	ID          int         `boil:"id" json:"id" toml:"id" yaml:"id"`
-	GithubPRID  null.String `boil:"github_pr_id" json:"github_pr_id,omitempty" toml:"github_pr_id" yaml:"github_pr_id,omitempty"`
-	GithubPRURL null.String `boil:"github_pr_url" json:"github_pr_url,omitempty" toml:"github_pr_url" yaml:"github_pr_url,omitempty"`
-	CreatedBy   string      `boil:"created_by" json:"created_by" toml:"created_by" yaml:"created_by"`
-	CreatedAt   time.Time   `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
-	Type        string      `boil:"type" json:"type" toml:"type" yaml:"type"`
-	Docs        null.String `boil:"docs" json:"docs,omitempty" toml:"docs" yaml:"docs,omitempty"`
+	ID               int         `boil:"id" json:"id" toml:"id" yaml:"id"`
+	GithubBranchName null.String `boil:"github_branch_name" json:"github_branch_name,omitempty" toml:"github_branch_name" yaml:"github_branch_name,omitempty"`
+	GithubPRID       null.String `boil:"github_pr_id" json:"github_pr_id,omitempty" toml:"github_pr_id" yaml:"github_pr_id,omitempty"`
+	GithubPRURL      null.String `boil:"github_pr_url" json:"github_pr_url,omitempty" toml:"github_pr_url" yaml:"github_pr_url,omitempty"`
+	CreatedBy        string      `boil:"created_by" json:"created_by" toml:"created_by" yaml:"created_by"`
+	CreatedAt        time.Time   `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
+	Closed           null.Bool   `boil:"closed" json:"closed,omitempty" toml:"closed" yaml:"closed,omitempty"`
+	Type             string      `boil:"type" json:"type" toml:"type" yaml:"type"`
+	Docs             null.String `boil:"docs" json:"docs,omitempty" toml:"docs" yaml:"docs,omitempty"`
 
 	R *changeRequestR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L changeRequestL  `boil:"-" json:"-" toml:"-" yaml:"-"`
 }
 
 var ChangeRequestColumns = struct {
-	ID          string
-	GithubPRID  string
-	GithubPRURL string
-	CreatedBy   string
-	CreatedAt   string
-	Type        string
-	Docs        string
+	ID               string
+	GithubBranchName string
+	GithubPRID       string
+	GithubPRURL      string
+	CreatedBy        string
+	CreatedAt        string
+	Closed           string
+	Type             string
+	Docs             string
 }{
-	ID:          "id",
-	GithubPRID:  "github_pr_id",
-	GithubPRURL: "github_pr_url",
-	CreatedBy:   "created_by",
-	CreatedAt:   "created_at",
-	Type:        "type",
-	Docs:        "docs",
+	ID:               "id",
+	GithubBranchName: "github_branch_name",
+	GithubPRID:       "github_pr_id",
+	GithubPRURL:      "github_pr_url",
+	CreatedBy:        "created_by",
+	CreatedAt:        "created_at",
+	Closed:           "closed",
+	Type:             "type",
+	Docs:             "docs",
 }
 
 var ChangeRequestTableColumns = struct {
-	ID          string
-	GithubPRID  string
-	GithubPRURL string
-	CreatedBy   string
-	CreatedAt   string
-	Type        string
-	Docs        string
+	ID               string
+	GithubBranchName string
+	GithubPRID       string
+	GithubPRURL      string
+	CreatedBy        string
+	CreatedAt        string
+	Closed           string
+	Type             string
+	Docs             string
 }{
-	ID:          "change_requests.id",
-	GithubPRID:  "change_requests.github_pr_id",
-	GithubPRURL: "change_requests.github_pr_url",
-	CreatedBy:   "change_requests.created_by",
-	CreatedAt:   "change_requests.created_at",
-	Type:        "change_requests.type",
-	Docs:        "change_requests.docs",
+	ID:               "change_requests.id",
+	GithubBranchName: "change_requests.github_branch_name",
+	GithubPRID:       "change_requests.github_pr_id",
+	GithubPRURL:      "change_requests.github_pr_url",
+	CreatedBy:        "change_requests.created_by",
+	CreatedAt:        "change_requests.created_at",
+	Closed:           "change_requests.closed",
+	Type:             "change_requests.type",
+	Docs:             "change_requests.docs",
 }
 
 // Generated where
@@ -195,22 +205,50 @@ func (w whereHelpertime_Time) GTE(x time.Time) qm.QueryMod {
 	return qmhelper.Where(w.field, qmhelper.GTE, x)
 }
 
+type whereHelpernull_Bool struct{ field string }
+
+func (w whereHelpernull_Bool) EQ(x null.Bool) qm.QueryMod {
+	return qmhelper.WhereNullEQ(w.field, false, x)
+}
+func (w whereHelpernull_Bool) NEQ(x null.Bool) qm.QueryMod {
+	return qmhelper.WhereNullEQ(w.field, true, x)
+}
+func (w whereHelpernull_Bool) LT(x null.Bool) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.LT, x)
+}
+func (w whereHelpernull_Bool) LTE(x null.Bool) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.LTE, x)
+}
+func (w whereHelpernull_Bool) GT(x null.Bool) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.GT, x)
+}
+func (w whereHelpernull_Bool) GTE(x null.Bool) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.GTE, x)
+}
+
+func (w whereHelpernull_Bool) IsNull() qm.QueryMod    { return qmhelper.WhereIsNull(w.field) }
+func (w whereHelpernull_Bool) IsNotNull() qm.QueryMod { return qmhelper.WhereIsNotNull(w.field) }
+
 var ChangeRequestWhere = struct {
-	ID          whereHelperint
-	GithubPRID  whereHelpernull_String
-	GithubPRURL whereHelpernull_String
-	CreatedBy   whereHelperstring
-	CreatedAt   whereHelpertime_Time
-	Type        whereHelperstring
-	Docs        whereHelpernull_String
+	ID               whereHelperint
+	GithubBranchName whereHelpernull_String
+	GithubPRID       whereHelpernull_String
+	GithubPRURL      whereHelpernull_String
+	CreatedBy        whereHelperstring
+	CreatedAt        whereHelpertime_Time
+	Closed           whereHelpernull_Bool
+	Type             whereHelperstring
+	Docs             whereHelpernull_String
 }{
-	ID:          whereHelperint{field: "\"change_requests\".\"id\""},
-	GithubPRID:  whereHelpernull_String{field: "\"change_requests\".\"github_pr_id\""},
-	GithubPRURL: whereHelpernull_String{field: "\"change_requests\".\"github_pr_url\""},
-	CreatedBy:   whereHelperstring{field: "\"change_requests\".\"created_by\""},
-	CreatedAt:   whereHelpertime_Time{field: "\"change_requests\".\"created_at\""},
-	Type:        whereHelperstring{field: "\"change_requests\".\"type\""},
-	Docs:        whereHelpernull_String{field: "\"change_requests\".\"docs\""},
+	ID:               whereHelperint{field: "\"change_requests\".\"id\""},
+	GithubBranchName: whereHelpernull_String{field: "\"change_requests\".\"github_branch_name\""},
+	GithubPRID:       whereHelpernull_String{field: "\"change_requests\".\"github_pr_id\""},
+	GithubPRURL:      whereHelpernull_String{field: "\"change_requests\".\"github_pr_url\""},
+	CreatedBy:        whereHelperstring{field: "\"change_requests\".\"created_by\""},
+	CreatedAt:        whereHelpertime_Time{field: "\"change_requests\".\"created_at\""},
+	Closed:           whereHelpernull_Bool{field: "\"change_requests\".\"closed\""},
+	Type:             whereHelperstring{field: "\"change_requests\".\"type\""},
+	Docs:             whereHelpernull_String{field: "\"change_requests\".\"docs\""},
 }
 
 // ChangeRequestRels is where relationship names are stored.
@@ -251,9 +289,9 @@ func (r *changeRequestR) GetTMTJobs() TMTJobSlice {
 type changeRequestL struct{}
 
 var (
-	changeRequestAllColumns            = []string{"id", "github_pr_id", "github_pr_url", "created_by", "created_at", "type", "docs"}
+	changeRequestAllColumns            = []string{"id", "github_branch_name", "github_pr_id", "github_pr_url", "created_by", "created_at", "closed", "type", "docs"}
 	changeRequestColumnsWithoutDefault = []string{"created_by", "type"}
-	changeRequestColumnsWithDefault    = []string{"id", "github_pr_id", "github_pr_url", "created_at", "docs"}
+	changeRequestColumnsWithDefault    = []string{"id", "github_branch_name", "github_pr_id", "github_pr_url", "created_at", "closed", "docs"}
 	changeRequestPrimaryKeyColumns     = []string{"id"}
 	changeRequestGeneratedColumns      = []string{}
 )
