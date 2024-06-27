@@ -3,10 +3,10 @@ CREATE TABLE rebase_jobs(
   id SERIAL PRIMARY KEY,
   change_request_id INT NOT NULL,
 
-  created_at TIMESTAMP DEFAULT NOT NULL CURRENT_TIMESTAMP,
+  created_at TIMESTAMP  NOT NULL DEFAULT CURRENT_TIMESTAMP,
   completed_at TIMESTAMP,
 
-  status job_status NOT NULL DEFAULT 'pending',
+  status VARCHAR(255) NOT NULL,
   status_message TEXT,
 
   FOREIGN KEY (change_request_id) REFERENCES change_requests(id)
@@ -17,6 +17,6 @@ INSERT INTO rebase_jobs (
   status,
   status_message
 ) VALUES
-(1, 'pending', null),
-(2, 'failed', 'Failed to rebase becasue of blah blah.... need manual intervention'),
-(3, 'completed', 'Successfully rebased off of commit abcdefg');
+(1, 'PENDING', null),
+(2, 'FAILED', 'Failed to rebase becasue of blah blah.... need manual intervention'),
+(3, 'COMPLETED', 'Successfully rebased off of commit abcdefg');

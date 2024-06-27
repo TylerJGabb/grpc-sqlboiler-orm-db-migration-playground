@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 	"sqlboiler-sb/models"
+	"sqlboiler-sb/pkg/crspb"
 
 	_ "github.com/lib/pq"
 	"github.com/volatiletech/sqlboiler/v4/boil"
@@ -45,7 +46,7 @@ func main() {
 
 	cr := &models.ChangeRequest{
 		CreatedBy: "tyler@dv01.co", // get this from request
-		Type:      models.ChangeRequestTypeTMTProject,
+		Type:      crspb.ChangeRequestType_TMT.String(),
 	}
 	err = cr.Insert(
 		context.Background(),
@@ -61,22 +62,22 @@ func main() {
 		Application:             "some app",
 		DV01Domain:              "some domain",
 		UserEmail:               "alice",
-		Status:                  models.JobStatusPending,
+		Status:                  crspb.JobStatus_PENDING.String(),
 	}
+	fmt.Println("before add:", tmtJob.ID)
 	err = cr.AddTMTJobs(context.Background(), db, true, tmtJob)
 	if err != nil {
 		panic(err) // return error from gRPC handler
 	}
+	fmt.Println("after add:", tmtJob.ID)
 
 	crs, _ := models.ChangeRequests(
 		qm.Load(models.ChangeRequestRels.TMTJobs),
 	).All(context.Background(), db)
 	for _, cr := range crs {
 		fmt.Println("change request:", cr.ID, cr.CreatedBy, cr.CreatedAt)
-		if cr.Type == models.ChangeRequestTypeTMTProject {
-			for _, tj := range cr.R.TMTJobs {
-				fmt.Println("  tmt job:", tj.StatusMessage, tj.CreatedAt, tj.CompletedAt)
-			}
+		for _, tj := range cr.R.TMTJobs {
+			fmt.Println("  tmt job:", tj.StatusMessage, tj.CreatedAt, tj.CompletedAt)
 		}
 	}
 }

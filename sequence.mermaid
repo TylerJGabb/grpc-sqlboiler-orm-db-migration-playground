@@ -7,11 +7,9 @@ sequenceDiagram
     bff ->> api: Create TMT
     api ->> db: insert change request
     db -->> api: 
-    api ->> db: insert change request status update pending
+    api ->> db: insert tmt-job status=pending
     db -->> api: 
-    api ->> db: insert change request job
-    db -->> api: 
-    api ->> r: execute cr-id=123 job-id=456 type create-tmt
+    api ->> r: execute cr-id=123 job-id=456 type=create-tmt
     r -->> api: started
     api ->> bff: accepted
 

@@ -4,6 +4,7 @@ go 1.22.2
 
 require (
 	cloud.google.com/go/run v1.3.8
+	github.com/DATA-DOG/go-sqlmock v1.4.1
 	github.com/friendsofgo/errors v0.9.2
 	github.com/googleapis/gax-go/v2 v2.12.5
 	github.com/lib/pq v1.10.7
@@ -11,6 +12,8 @@ require (
 	github.com/volatiletech/null/v8 v8.1.2
 	github.com/volatiletech/sqlboiler/v4 v4.16.2
 	github.com/volatiletech/strmangle v0.0.6
+	google.golang.org/grpc v1.64.0
+	google.golang.org/protobuf v1.34.2
 )
 
 require (
@@ -50,6 +53,4 @@ require (
 	google.golang.org/genproto v0.0.0-20240617180043-68d350f18fd4 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20240617180043-68d350f18fd4 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240617180043-68d350f18fd4 // indirect
-	google.golang.org/grpc v1.64.0 // indirect
-	google.golang.org/protobuf v1.34.2 // indirect
 )

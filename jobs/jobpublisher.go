@@ -9,6 +9,6 @@ type Job interface {
 	ToRunJobRequest(jobFqn string) *runpb.RunJobRequest
 }
 
-type CloudRunJobPublisher interface {
-	Publish(job Job) (*run.RunJobOperation, error)
+type CloudRunJobRunner interface {
+	RunJob(job Job) (*run.RunJobOperation, error)
 }

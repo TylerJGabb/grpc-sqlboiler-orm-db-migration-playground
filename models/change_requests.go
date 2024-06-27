@@ -24,13 +24,13 @@ import (
 
 // ChangeRequest is an object representing the database table.
 type ChangeRequest struct {
-	ID          int               `boil:"id" json:"id" toml:"id" yaml:"id"`
-	GithubPRID  null.String       `boil:"github_pr_id" json:"github_pr_id,omitempty" toml:"github_pr_id" yaml:"github_pr_id,omitempty"`
-	GithubPRURL null.String       `boil:"github_pr_url" json:"github_pr_url,omitempty" toml:"github_pr_url" yaml:"github_pr_url,omitempty"`
-	CreatedBy   string            `boil:"created_by" json:"created_by" toml:"created_by" yaml:"created_by"`
-	CreatedAt   time.Time         `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
-	Type        ChangeRequestType `boil:"type" json:"type" toml:"type" yaml:"type"`
-	Docs        null.String       `boil:"docs" json:"docs,omitempty" toml:"docs" yaml:"docs,omitempty"`
+	ID          int         `boil:"id" json:"id" toml:"id" yaml:"id"`
+	GithubPRID  null.String `boil:"github_pr_id" json:"github_pr_id,omitempty" toml:"github_pr_id" yaml:"github_pr_id,omitempty"`
+	GithubPRURL null.String `boil:"github_pr_url" json:"github_pr_url,omitempty" toml:"github_pr_url" yaml:"github_pr_url,omitempty"`
+	CreatedBy   string      `boil:"created_by" json:"created_by" toml:"created_by" yaml:"created_by"`
+	CreatedAt   time.Time   `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
+	Type        string      `boil:"type" json:"type" toml:"type" yaml:"type"`
+	Docs        null.String `boil:"docs" json:"docs,omitempty" toml:"docs" yaml:"docs,omitempty"`
 
 	R *changeRequestR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L changeRequestL  `boil:"-" json:"-" toml:"-" yaml:"-"`
@@ -195,48 +195,13 @@ func (w whereHelpertime_Time) GTE(x time.Time) qm.QueryMod {
 	return qmhelper.Where(w.field, qmhelper.GTE, x)
 }
 
-type whereHelperChangeRequestType struct{ field string }
-
-func (w whereHelperChangeRequestType) EQ(x ChangeRequestType) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.EQ, x)
-}
-func (w whereHelperChangeRequestType) NEQ(x ChangeRequestType) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.NEQ, x)
-}
-func (w whereHelperChangeRequestType) LT(x ChangeRequestType) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.LT, x)
-}
-func (w whereHelperChangeRequestType) LTE(x ChangeRequestType) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.LTE, x)
-}
-func (w whereHelperChangeRequestType) GT(x ChangeRequestType) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.GT, x)
-}
-func (w whereHelperChangeRequestType) GTE(x ChangeRequestType) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.GTE, x)
-}
-func (w whereHelperChangeRequestType) IN(slice []ChangeRequestType) qm.QueryMod {
-	values := make([]interface{}, 0, len(slice))
-	for _, value := range slice {
-		values = append(values, value)
-	}
-	return qm.WhereIn(fmt.Sprintf("%s IN ?", w.field), values...)
-}
-func (w whereHelperChangeRequestType) NIN(slice []ChangeRequestType) qm.QueryMod {
-	values := make([]interface{}, 0, len(slice))
-	for _, value := range slice {
-		values = append(values, value)
-	}
-	return qm.WhereNotIn(fmt.Sprintf("%s NOT IN ?", w.field), values...)
-}
-
 var ChangeRequestWhere = struct {
 	ID          whereHelperint
 	GithubPRID  whereHelpernull_String
 	GithubPRURL whereHelpernull_String
 	CreatedBy   whereHelperstring
 	CreatedAt   whereHelpertime_Time
-	Type        whereHelperChangeRequestType
+	Type        whereHelperstring
 	Docs        whereHelpernull_String
 }{
 	ID:          whereHelperint{field: "\"change_requests\".\"id\""},
@@ -244,7 +209,7 @@ var ChangeRequestWhere = struct {
 	GithubPRURL: whereHelpernull_String{field: "\"change_requests\".\"github_pr_url\""},
 	CreatedBy:   whereHelperstring{field: "\"change_requests\".\"created_by\""},
 	CreatedAt:   whereHelpertime_Time{field: "\"change_requests\".\"created_at\""},
-	Type:        whereHelperChangeRequestType{field: "\"change_requests\".\"type\""},
+	Type:        whereHelperstring{field: "\"change_requests\".\"type\""},
 	Docs:        whereHelpernull_String{field: "\"change_requests\".\"docs\""},
 }
 

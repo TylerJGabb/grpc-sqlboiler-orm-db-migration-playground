@@ -31,9 +31,9 @@ type TMTJob struct {
 	Application             string      `boil:"application" json:"application" toml:"application" yaml:"application"`
 	DV01Domain              string      `boil:"dv01_domain" json:"dv01_domain" toml:"dv01_domain" yaml:"dv01_domain"`
 	UserEmail               string      `boil:"user_email" json:"user_email" toml:"user_email" yaml:"user_email"`
-	CreatedAt               null.Time   `boil:"created_at" json:"created_at,omitempty" toml:"created_at" yaml:"created_at,omitempty"`
+	CreatedAt               time.Time   `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
 	CompletedAt             null.Time   `boil:"completed_at" json:"completed_at,omitempty" toml:"completed_at" yaml:"completed_at,omitempty"`
-	Status                  JobStatus   `boil:"status" json:"status" toml:"status" yaml:"status"`
+	Status                  string      `boil:"status" json:"status" toml:"status" yaml:"status"`
 	StatusMessage           null.String `boil:"status_message" json:"status_message,omitempty" toml:"status_message" yaml:"status_message,omitempty"`
 
 	R *tmtJobR `boil:"-" json:"-" toml:"-" yaml:"-"`
@@ -102,9 +102,9 @@ var TMTJobWhere = struct {
 	Application             whereHelperstring
 	DV01Domain              whereHelperstring
 	UserEmail               whereHelperstring
-	CreatedAt               whereHelpernull_Time
+	CreatedAt               whereHelpertime_Time
 	CompletedAt             whereHelpernull_Time
-	Status                  whereHelperJobStatus
+	Status                  whereHelperstring
 	StatusMessage           whereHelpernull_String
 }{
 	ID:                      whereHelperint{field: "\"tmt_jobs\".\"id\""},
@@ -114,9 +114,9 @@ var TMTJobWhere = struct {
 	Application:             whereHelperstring{field: "\"tmt_jobs\".\"application\""},
 	DV01Domain:              whereHelperstring{field: "\"tmt_jobs\".\"dv01_domain\""},
 	UserEmail:               whereHelperstring{field: "\"tmt_jobs\".\"user_email\""},
-	CreatedAt:               whereHelpernull_Time{field: "\"tmt_jobs\".\"created_at\""},
+	CreatedAt:               whereHelpertime_Time{field: "\"tmt_jobs\".\"created_at\""},
 	CompletedAt:             whereHelpernull_Time{field: "\"tmt_jobs\".\"completed_at\""},
-	Status:                  whereHelperJobStatus{field: "\"tmt_jobs\".\"status\""},
+	Status:                  whereHelperstring{field: "\"tmt_jobs\".\"status\""},
 	StatusMessage:           whereHelpernull_String{field: "\"tmt_jobs\".\"status_message\""},
 }
 
@@ -149,8 +149,8 @@ type tmtJobL struct{}
 
 var (
 	tmtJobAllColumns            = []string{"id", "change_request_id", "project_name", "orchestration_repository", "application", "dv01_domain", "user_email", "created_at", "completed_at", "status", "status_message"}
-	tmtJobColumnsWithoutDefault = []string{"change_request_id", "project_name", "orchestration_repository", "application", "dv01_domain", "user_email"}
-	tmtJobColumnsWithDefault    = []string{"id", "created_at", "completed_at", "status", "status_message"}
+	tmtJobColumnsWithoutDefault = []string{"change_request_id", "project_name", "orchestration_repository", "application", "dv01_domain", "user_email", "status"}
+	tmtJobColumnsWithDefault    = []string{"id", "created_at", "completed_at", "status_message"}
 	tmtJobPrimaryKeyColumns     = []string{"id"}
 	tmtJobGeneratedColumns      = []string{}
 )
@@ -690,8 +690,8 @@ func (o *TMTJob) Insert(ctx context.Context, exec boil.ContextExecutor, columns 
 	if !boil.TimestampsAreSkipped(ctx) {
 		currTime := time.Now().In(boil.GetLocation())
 
-		if queries.MustTime(o.CreatedAt).IsZero() {
-			queries.SetScanner(&o.CreatedAt, currTime)
+		if o.CreatedAt.IsZero() {
+			o.CreatedAt = currTime
 		}
 	}
 
@@ -902,8 +902,8 @@ func (o *TMTJob) Upsert(ctx context.Context, exec boil.ContextExecutor, updateOn
 	if !boil.TimestampsAreSkipped(ctx) {
 		currTime := time.Now().In(boil.GetLocation())
 
-		if queries.MustTime(o.CreatedAt).IsZero() {
-			queries.SetScanner(&o.CreatedAt, currTime)
+		if o.CreatedAt.IsZero() {
+			o.CreatedAt = currTime
 		}
 	}
 

@@ -12,19 +12,19 @@ import (
 // https://pkg.go.dev/cloud.google.com/go/run/apiv2
 
 // Create our own interface, which is satiasfied by the *run.JobsClient in cloud.google.com/go/run/apiv2
-// to enable mocking in tests, since the *run.JobsClient does not implement an interface
+// to enable mocking in tests, since the *run.JobsClient is a concrete.
 type CloudRunJobsClient interface {
 	RunJob(ctx context.Context, in *runpb.RunJobRequest, opts ...gax.CallOption) (*run.RunJobOperation, error)
 }
 
-type CloudRunJobPublisherImpl struct {
+type CloudRunJobRunnerImpl struct {
 	jobFqn string
 	client CloudRunJobsClient
 	ctx    context.Context
 }
 
-func (c *CloudRunJobPublisherImpl) Publish(job Job) (*run.RunJobOperation, error) {
-	req := job.ToRunJobRequest()
+func (c *CloudRunJobRunnerImpl) RunJob(job Job) (*run.RunJobOperation, error) {
+	req := job.ToRunJobRequest(c.jobFqn)
 	op, err := c.client.RunJob(c.ctx, req)
 	return op, err
 }

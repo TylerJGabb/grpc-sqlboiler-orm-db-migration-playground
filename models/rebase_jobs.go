@@ -26,9 +26,9 @@ import (
 type RebaseJob struct {
 	ID              int         `boil:"id" json:"id" toml:"id" yaml:"id"`
 	ChangeRequestID int         `boil:"change_request_id" json:"change_request_id" toml:"change_request_id" yaml:"change_request_id"`
-	CreatedAt       null.Time   `boil:"created_at" json:"created_at,omitempty" toml:"created_at" yaml:"created_at,omitempty"`
+	CreatedAt       time.Time   `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
 	CompletedAt     null.Time   `boil:"completed_at" json:"completed_at,omitempty" toml:"completed_at" yaml:"completed_at,omitempty"`
-	Status          JobStatus   `boil:"status" json:"status" toml:"status" yaml:"status"`
+	Status          string      `boil:"status" json:"status" toml:"status" yaml:"status"`
 	StatusMessage   null.String `boil:"status_message" json:"status_message,omitempty" toml:"status_message" yaml:"status_message,omitempty"`
 
 	R *rebaseJobR `boil:"-" json:"-" toml:"-" yaml:"-"`
@@ -93,54 +93,19 @@ func (w whereHelpernull_Time) GTE(x null.Time) qm.QueryMod {
 func (w whereHelpernull_Time) IsNull() qm.QueryMod    { return qmhelper.WhereIsNull(w.field) }
 func (w whereHelpernull_Time) IsNotNull() qm.QueryMod { return qmhelper.WhereIsNotNull(w.field) }
 
-type whereHelperJobStatus struct{ field string }
-
-func (w whereHelperJobStatus) EQ(x JobStatus) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.EQ, x)
-}
-func (w whereHelperJobStatus) NEQ(x JobStatus) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.NEQ, x)
-}
-func (w whereHelperJobStatus) LT(x JobStatus) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.LT, x)
-}
-func (w whereHelperJobStatus) LTE(x JobStatus) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.LTE, x)
-}
-func (w whereHelperJobStatus) GT(x JobStatus) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.GT, x)
-}
-func (w whereHelperJobStatus) GTE(x JobStatus) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.GTE, x)
-}
-func (w whereHelperJobStatus) IN(slice []JobStatus) qm.QueryMod {
-	values := make([]interface{}, 0, len(slice))
-	for _, value := range slice {
-		values = append(values, value)
-	}
-	return qm.WhereIn(fmt.Sprintf("%s IN ?", w.field), values...)
-}
-func (w whereHelperJobStatus) NIN(slice []JobStatus) qm.QueryMod {
-	values := make([]interface{}, 0, len(slice))
-	for _, value := range slice {
-		values = append(values, value)
-	}
-	return qm.WhereNotIn(fmt.Sprintf("%s NOT IN ?", w.field), values...)
-}
-
 var RebaseJobWhere = struct {
 	ID              whereHelperint
 	ChangeRequestID whereHelperint
-	CreatedAt       whereHelpernull_Time
+	CreatedAt       whereHelpertime_Time
 	CompletedAt     whereHelpernull_Time
-	Status          whereHelperJobStatus
+	Status          whereHelperstring
 	StatusMessage   whereHelpernull_String
 }{
 	ID:              whereHelperint{field: "\"rebase_jobs\".\"id\""},
 	ChangeRequestID: whereHelperint{field: "\"rebase_jobs\".\"change_request_id\""},
-	CreatedAt:       whereHelpernull_Time{field: "\"rebase_jobs\".\"created_at\""},
+	CreatedAt:       whereHelpertime_Time{field: "\"rebase_jobs\".\"created_at\""},
 	CompletedAt:     whereHelpernull_Time{field: "\"rebase_jobs\".\"completed_at\""},
-	Status:          whereHelperJobStatus{field: "\"rebase_jobs\".\"status\""},
+	Status:          whereHelperstring{field: "\"rebase_jobs\".\"status\""},
 	StatusMessage:   whereHelpernull_String{field: "\"rebase_jobs\".\"status_message\""},
 }
 
@@ -173,8 +138,8 @@ type rebaseJobL struct{}
 
 var (
 	rebaseJobAllColumns            = []string{"id", "change_request_id", "created_at", "completed_at", "status", "status_message"}
-	rebaseJobColumnsWithoutDefault = []string{"change_request_id"}
-	rebaseJobColumnsWithDefault    = []string{"id", "created_at", "completed_at", "status", "status_message"}
+	rebaseJobColumnsWithoutDefault = []string{"change_request_id", "status"}
+	rebaseJobColumnsWithDefault    = []string{"id", "created_at", "completed_at", "status_message"}
 	rebaseJobPrimaryKeyColumns     = []string{"id"}
 	rebaseJobGeneratedColumns      = []string{}
 )
@@ -714,8 +679,8 @@ func (o *RebaseJob) Insert(ctx context.Context, exec boil.ContextExecutor, colum
 	if !boil.TimestampsAreSkipped(ctx) {
 		currTime := time.Now().In(boil.GetLocation())
 
-		if queries.MustTime(o.CreatedAt).IsZero() {
-			queries.SetScanner(&o.CreatedAt, currTime)
+		if o.CreatedAt.IsZero() {
+			o.CreatedAt = currTime
 		}
 	}
 
@@ -926,8 +891,8 @@ func (o *RebaseJob) Upsert(ctx context.Context, exec boil.ContextExecutor, updat
 	if !boil.TimestampsAreSkipped(ctx) {
 		currTime := time.Now().In(boil.GetLocation())
 
-		if queries.MustTime(o.CreatedAt).IsZero() {
-			queries.SetScanner(&o.CreatedAt, currTime)
+		if o.CreatedAt.IsZero() {
+			o.CreatedAt = currTime
 		}
 	}
 
