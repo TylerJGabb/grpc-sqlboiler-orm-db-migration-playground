@@ -5,16 +5,10 @@ package models
 
 var TableNames = struct {
 	ChangeRequests string
-	Customers      string
-	InvoiceItems   string
-	Invoices       string
-	Products       string
-	StatusEvents   string
+	RebaseJobs     string
+	TMTJobs        string
 }{
 	ChangeRequests: "change_requests",
-	Customers:      "customers",
-	InvoiceItems:   "invoice_items",
-	Invoices:       "invoices",
-	Products:       "products",
-	StatusEvents:   "status_events",
+	RebaseJobs:     "rebase_jobs",
+	TMTJobs:        "tmt_jobs",
 }

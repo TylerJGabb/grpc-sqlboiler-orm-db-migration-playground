@@ -9,6 +9,7 @@ import (
 	"sqlboiler-sb/models"
 
 	_ "github.com/lib/pq"
+	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 
 	migrate "github.com/rubenv/sql-migrate"
@@ -42,25 +43,40 @@ func main() {
 	dieIf(err)
 	println("Applied", n, "migrations")
 
-	customers, _ := models.Customers(qm.Load("Invoices.Products")).All(context.Background(), db)
-	for _, c := range customers {
-		fmt.Println(c.Name)
-		for _, i := range c.R.Invoices {
-			fmt.Println("  invoice:", i.ID)
-			for _, p := range i.R.Products {
-				fmt.Println("    product:", p.Sku)
+	cr := &models.ChangeRequest{
+		CreatedBy: "tyler@dv01.co", // get this from request
+		Type:      models.ChangeRequestTypeTMTProject,
+	}
+	err = cr.Insert(
+		context.Background(),
+		db,
+		boil.Infer(),
+	)
+	if err != nil {
+		panic(err) // return error from gRPC handler
+	}
+	tmtJob := &models.TMTJob{
+		ProjectName:             "foobarbaz",
+		OrchestrationRepository: "some repo",
+		Application:             "some app",
+		DV01Domain:              "some domain",
+		UserEmail:               "alice",
+		Status:                  models.JobStatusPending,
+	}
+	err = cr.AddTMTJobs(context.Background(), db, true, tmtJob)
+	if err != nil {
+		panic(err) // return error from gRPC handler
+	}
+
+	crs, _ := models.ChangeRequests(
+		qm.Load(models.ChangeRequestRels.TMTJobs),
+	).All(context.Background(), db)
+	for _, cr := range crs {
+		fmt.Println("change request:", cr.ID, cr.CreatedBy, cr.CreatedAt)
+		if cr.Type == models.ChangeRequestTypeTMTProject {
+			for _, tj := range cr.R.TMTJobs {
+				fmt.Println("  tmt job:", tj.StatusMessage, tj.CreatedAt, tj.CompletedAt)
 			}
 		}
 	}
-
-	println()
-
-	crs, _ := models.ChangeRequests(qm.Load("StatusEvents")).All(context.Background(), db)
-	for _, cr := range crs {
-		fmt.Println("change request:", cr.ID)
-		for _, se := range cr.R.StatusEvents {
-			fmt.Println("  status event:", se.Timestamp, se.Status)
-		}
-	}
-
 }

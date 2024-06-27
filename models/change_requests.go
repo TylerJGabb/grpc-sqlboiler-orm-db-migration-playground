@@ -24,12 +24,13 @@ import (
 
 // ChangeRequest is an object representing the database table.
 type ChangeRequest struct {
-	ID          int         `boil:"id" json:"id" toml:"id" yaml:"id"`
-	GithubPRID  null.String `boil:"github_pr_id" json:"github_pr_id,omitempty" toml:"github_pr_id" yaml:"github_pr_id,omitempty"`
-	GithubPRURL null.String `boil:"github_pr_url" json:"github_pr_url,omitempty" toml:"github_pr_url" yaml:"github_pr_url,omitempty"`
-	CreatedBy   string      `boil:"created_by" json:"created_by" toml:"created_by" yaml:"created_by"`
-	CreatedAt   time.Time   `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
-	Docs        null.String `boil:"docs" json:"docs,omitempty" toml:"docs" yaml:"docs,omitempty"`
+	ID          int               `boil:"id" json:"id" toml:"id" yaml:"id"`
+	GithubPRID  null.String       `boil:"github_pr_id" json:"github_pr_id,omitempty" toml:"github_pr_id" yaml:"github_pr_id,omitempty"`
+	GithubPRURL null.String       `boil:"github_pr_url" json:"github_pr_url,omitempty" toml:"github_pr_url" yaml:"github_pr_url,omitempty"`
+	CreatedBy   string            `boil:"created_by" json:"created_by" toml:"created_by" yaml:"created_by"`
+	CreatedAt   time.Time         `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
+	Type        ChangeRequestType `boil:"type" json:"type" toml:"type" yaml:"type"`
+	Docs        null.String       `boil:"docs" json:"docs,omitempty" toml:"docs" yaml:"docs,omitempty"`
 
 	R *changeRequestR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L changeRequestL  `boil:"-" json:"-" toml:"-" yaml:"-"`
@@ -41,6 +42,7 @@ var ChangeRequestColumns = struct {
 	GithubPRURL string
 	CreatedBy   string
 	CreatedAt   string
+	Type        string
 	Docs        string
 }{
 	ID:          "id",
@@ -48,6 +50,7 @@ var ChangeRequestColumns = struct {
 	GithubPRURL: "github_pr_url",
 	CreatedBy:   "created_by",
 	CreatedAt:   "created_at",
+	Type:        "type",
 	Docs:        "docs",
 }
 
@@ -57,6 +60,7 @@ var ChangeRequestTableColumns = struct {
 	GithubPRURL string
 	CreatedBy   string
 	CreatedAt   string
+	Type        string
 	Docs        string
 }{
 	ID:          "change_requests.id",
@@ -64,6 +68,7 @@ var ChangeRequestTableColumns = struct {
 	GithubPRURL: "change_requests.github_pr_url",
 	CreatedBy:   "change_requests.created_by",
 	CreatedAt:   "change_requests.created_at",
+	Type:        "change_requests.type",
 	Docs:        "change_requests.docs",
 }
 
@@ -190,12 +195,48 @@ func (w whereHelpertime_Time) GTE(x time.Time) qm.QueryMod {
 	return qmhelper.Where(w.field, qmhelper.GTE, x)
 }
 
+type whereHelperChangeRequestType struct{ field string }
+
+func (w whereHelperChangeRequestType) EQ(x ChangeRequestType) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.EQ, x)
+}
+func (w whereHelperChangeRequestType) NEQ(x ChangeRequestType) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.NEQ, x)
+}
+func (w whereHelperChangeRequestType) LT(x ChangeRequestType) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.LT, x)
+}
+func (w whereHelperChangeRequestType) LTE(x ChangeRequestType) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.LTE, x)
+}
+func (w whereHelperChangeRequestType) GT(x ChangeRequestType) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.GT, x)
+}
+func (w whereHelperChangeRequestType) GTE(x ChangeRequestType) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.GTE, x)
+}
+func (w whereHelperChangeRequestType) IN(slice []ChangeRequestType) qm.QueryMod {
+	values := make([]interface{}, 0, len(slice))
+	for _, value := range slice {
+		values = append(values, value)
+	}
+	return qm.WhereIn(fmt.Sprintf("%s IN ?", w.field), values...)
+}
+func (w whereHelperChangeRequestType) NIN(slice []ChangeRequestType) qm.QueryMod {
+	values := make([]interface{}, 0, len(slice))
+	for _, value := range slice {
+		values = append(values, value)
+	}
+	return qm.WhereNotIn(fmt.Sprintf("%s NOT IN ?", w.field), values...)
+}
+
 var ChangeRequestWhere = struct {
 	ID          whereHelperint
 	GithubPRID  whereHelpernull_String
 	GithubPRURL whereHelpernull_String
 	CreatedBy   whereHelperstring
 	CreatedAt   whereHelpertime_Time
+	Type        whereHelperChangeRequestType
 	Docs        whereHelpernull_String
 }{
 	ID:          whereHelperint{field: "\"change_requests\".\"id\""},
@@ -203,19 +244,23 @@ var ChangeRequestWhere = struct {
 	GithubPRURL: whereHelpernull_String{field: "\"change_requests\".\"github_pr_url\""},
 	CreatedBy:   whereHelperstring{field: "\"change_requests\".\"created_by\""},
 	CreatedAt:   whereHelpertime_Time{field: "\"change_requests\".\"created_at\""},
+	Type:        whereHelperChangeRequestType{field: "\"change_requests\".\"type\""},
 	Docs:        whereHelpernull_String{field: "\"change_requests\".\"docs\""},
 }
 
 // ChangeRequestRels is where relationship names are stored.
 var ChangeRequestRels = struct {
-	StatusEvents string
+	RebaseJobs string
+	TMTJobs    string
 }{
-	StatusEvents: "StatusEvents",
+	RebaseJobs: "RebaseJobs",
+	TMTJobs:    "TMTJobs",
 }
 
 // changeRequestR is where relationships are stored.
 type changeRequestR struct {
-	StatusEvents StatusEventSlice `boil:"StatusEvents" json:"StatusEvents" toml:"StatusEvents" yaml:"StatusEvents"`
+	RebaseJobs RebaseJobSlice `boil:"RebaseJobs" json:"RebaseJobs" toml:"RebaseJobs" yaml:"RebaseJobs"`
+	TMTJobs    TMTJobSlice    `boil:"TMTJobs" json:"TMTJobs" toml:"TMTJobs" yaml:"TMTJobs"`
 }
 
 // NewStruct creates a new relationship struct
@@ -223,19 +268,26 @@ func (*changeRequestR) NewStruct() *changeRequestR {
 	return &changeRequestR{}
 }
 
-func (r *changeRequestR) GetStatusEvents() StatusEventSlice {
+func (r *changeRequestR) GetRebaseJobs() RebaseJobSlice {
 	if r == nil {
 		return nil
 	}
-	return r.StatusEvents
+	return r.RebaseJobs
+}
+
+func (r *changeRequestR) GetTMTJobs() TMTJobSlice {
+	if r == nil {
+		return nil
+	}
+	return r.TMTJobs
 }
 
 // changeRequestL is where Load methods for each relationship are stored.
 type changeRequestL struct{}
 
 var (
-	changeRequestAllColumns            = []string{"id", "github_pr_id", "github_pr_url", "created_by", "created_at", "docs"}
-	changeRequestColumnsWithoutDefault = []string{"created_by"}
+	changeRequestAllColumns            = []string{"id", "github_pr_id", "github_pr_url", "created_by", "created_at", "type", "docs"}
+	changeRequestColumnsWithoutDefault = []string{"created_by", "type"}
 	changeRequestColumnsWithDefault    = []string{"id", "github_pr_id", "github_pr_url", "created_at", "docs"}
 	changeRequestPrimaryKeyColumns     = []string{"id"}
 	changeRequestGeneratedColumns      = []string{}
@@ -546,23 +598,37 @@ func (q changeRequestQuery) Exists(ctx context.Context, exec boil.ContextExecuto
 	return count > 0, nil
 }
 
-// StatusEvents retrieves all the status_event's StatusEvents with an executor.
-func (o *ChangeRequest) StatusEvents(mods ...qm.QueryMod) statusEventQuery {
+// RebaseJobs retrieves all the rebase_job's RebaseJobs with an executor.
+func (o *ChangeRequest) RebaseJobs(mods ...qm.QueryMod) rebaseJobQuery {
 	var queryMods []qm.QueryMod
 	if len(mods) != 0 {
 		queryMods = append(queryMods, mods...)
 	}
 
 	queryMods = append(queryMods,
-		qm.Where("\"status_events\".\"change_request_id\"=?", o.ID),
+		qm.Where("\"rebase_jobs\".\"change_request_id\"=?", o.ID),
 	)
 
-	return StatusEvents(queryMods...)
+	return RebaseJobs(queryMods...)
 }
 
-// LoadStatusEvents allows an eager lookup of values, cached into the
+// TMTJobs retrieves all the tmt_job's TMTJobs with an executor.
+func (o *ChangeRequest) TMTJobs(mods ...qm.QueryMod) tmtJobQuery {
+	var queryMods []qm.QueryMod
+	if len(mods) != 0 {
+		queryMods = append(queryMods, mods...)
+	}
+
+	queryMods = append(queryMods,
+		qm.Where("\"tmt_jobs\".\"change_request_id\"=?", o.ID),
+	)
+
+	return TMTJobs(queryMods...)
+}
+
+// LoadRebaseJobs allows an eager lookup of values, cached into the
 // loaded structs of the objects. This is for a 1-M or N-M relationship.
-func (changeRequestL) LoadStatusEvents(ctx context.Context, e boil.ContextExecutor, singular bool, maybeChangeRequest interface{}, mods queries.Applicator) error {
+func (changeRequestL) LoadRebaseJobs(ctx context.Context, e boil.ContextExecutor, singular bool, maybeChangeRequest interface{}, mods queries.Applicator) error {
 	var slice []*ChangeRequest
 	var object *ChangeRequest
 
@@ -615,8 +681,8 @@ func (changeRequestL) LoadStatusEvents(ctx context.Context, e boil.ContextExecut
 	}
 
 	query := NewQuery(
-		qm.From(`status_events`),
-		qm.WhereIn(`status_events.change_request_id in ?`, argsSlice...),
+		qm.From(`rebase_jobs`),
+		qm.WhereIn(`rebase_jobs.change_request_id in ?`, argsSlice...),
 	)
 	if mods != nil {
 		mods.Apply(query)
@@ -624,22 +690,22 @@ func (changeRequestL) LoadStatusEvents(ctx context.Context, e boil.ContextExecut
 
 	results, err := query.QueryContext(ctx, e)
 	if err != nil {
-		return errors.Wrap(err, "failed to eager load status_events")
+		return errors.Wrap(err, "failed to eager load rebase_jobs")
 	}
 
-	var resultSlice []*StatusEvent
+	var resultSlice []*RebaseJob
 	if err = queries.Bind(results, &resultSlice); err != nil {
-		return errors.Wrap(err, "failed to bind eager loaded slice status_events")
+		return errors.Wrap(err, "failed to bind eager loaded slice rebase_jobs")
 	}
 
 	if err = results.Close(); err != nil {
-		return errors.Wrap(err, "failed to close results in eager load on status_events")
+		return errors.Wrap(err, "failed to close results in eager load on rebase_jobs")
 	}
 	if err = results.Err(); err != nil {
-		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for status_events")
+		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for rebase_jobs")
 	}
 
-	if len(statusEventAfterSelectHooks) != 0 {
+	if len(rebaseJobAfterSelectHooks) != 0 {
 		for _, obj := range resultSlice {
 			if err := obj.doAfterSelectHooks(ctx, e); err != nil {
 				return err
@@ -647,10 +713,10 @@ func (changeRequestL) LoadStatusEvents(ctx context.Context, e boil.ContextExecut
 		}
 	}
 	if singular {
-		object.R.StatusEvents = resultSlice
+		object.R.RebaseJobs = resultSlice
 		for _, foreign := range resultSlice {
 			if foreign.R == nil {
-				foreign.R = &statusEventR{}
+				foreign.R = &rebaseJobR{}
 			}
 			foreign.R.ChangeRequest = object
 		}
@@ -659,10 +725,10 @@ func (changeRequestL) LoadStatusEvents(ctx context.Context, e boil.ContextExecut
 
 	for _, foreign := range resultSlice {
 		for _, local := range slice {
-			if queries.Equal(local.ID, foreign.ChangeRequestID) {
-				local.R.StatusEvents = append(local.R.StatusEvents, foreign)
+			if local.ID == foreign.ChangeRequestID {
+				local.R.RebaseJobs = append(local.R.RebaseJobs, foreign)
 				if foreign.R == nil {
-					foreign.R = &statusEventR{}
+					foreign.R = &rebaseJobR{}
 				}
 				foreign.R.ChangeRequest = local
 				break
@@ -673,23 +739,136 @@ func (changeRequestL) LoadStatusEvents(ctx context.Context, e boil.ContextExecut
 	return nil
 }
 
-// AddStatusEvents adds the given related objects to the existing relationships
+// LoadTMTJobs allows an eager lookup of values, cached into the
+// loaded structs of the objects. This is for a 1-M or N-M relationship.
+func (changeRequestL) LoadTMTJobs(ctx context.Context, e boil.ContextExecutor, singular bool, maybeChangeRequest interface{}, mods queries.Applicator) error {
+	var slice []*ChangeRequest
+	var object *ChangeRequest
+
+	if singular {
+		var ok bool
+		object, ok = maybeChangeRequest.(*ChangeRequest)
+		if !ok {
+			object = new(ChangeRequest)
+			ok = queries.SetFromEmbeddedStruct(&object, &maybeChangeRequest)
+			if !ok {
+				return errors.New(fmt.Sprintf("failed to set %T from embedded struct %T", object, maybeChangeRequest))
+			}
+		}
+	} else {
+		s, ok := maybeChangeRequest.(*[]*ChangeRequest)
+		if ok {
+			slice = *s
+		} else {
+			ok = queries.SetFromEmbeddedStruct(&slice, maybeChangeRequest)
+			if !ok {
+				return errors.New(fmt.Sprintf("failed to set %T from embedded struct %T", slice, maybeChangeRequest))
+			}
+		}
+	}
+
+	args := make(map[interface{}]struct{})
+	if singular {
+		if object.R == nil {
+			object.R = &changeRequestR{}
+		}
+		args[object.ID] = struct{}{}
+	} else {
+		for _, obj := range slice {
+			if obj.R == nil {
+				obj.R = &changeRequestR{}
+			}
+			args[obj.ID] = struct{}{}
+		}
+	}
+
+	if len(args) == 0 {
+		return nil
+	}
+
+	argsSlice := make([]interface{}, len(args))
+	i := 0
+	for arg := range args {
+		argsSlice[i] = arg
+		i++
+	}
+
+	query := NewQuery(
+		qm.From(`tmt_jobs`),
+		qm.WhereIn(`tmt_jobs.change_request_id in ?`, argsSlice...),
+	)
+	if mods != nil {
+		mods.Apply(query)
+	}
+
+	results, err := query.QueryContext(ctx, e)
+	if err != nil {
+		return errors.Wrap(err, "failed to eager load tmt_jobs")
+	}
+
+	var resultSlice []*TMTJob
+	if err = queries.Bind(results, &resultSlice); err != nil {
+		return errors.Wrap(err, "failed to bind eager loaded slice tmt_jobs")
+	}
+
+	if err = results.Close(); err != nil {
+		return errors.Wrap(err, "failed to close results in eager load on tmt_jobs")
+	}
+	if err = results.Err(); err != nil {
+		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for tmt_jobs")
+	}
+
+	if len(tmtJobAfterSelectHooks) != 0 {
+		for _, obj := range resultSlice {
+			if err := obj.doAfterSelectHooks(ctx, e); err != nil {
+				return err
+			}
+		}
+	}
+	if singular {
+		object.R.TMTJobs = resultSlice
+		for _, foreign := range resultSlice {
+			if foreign.R == nil {
+				foreign.R = &tmtJobR{}
+			}
+			foreign.R.ChangeRequest = object
+		}
+		return nil
+	}
+
+	for _, foreign := range resultSlice {
+		for _, local := range slice {
+			if local.ID == foreign.ChangeRequestID {
+				local.R.TMTJobs = append(local.R.TMTJobs, foreign)
+				if foreign.R == nil {
+					foreign.R = &tmtJobR{}
+				}
+				foreign.R.ChangeRequest = local
+				break
+			}
+		}
+	}
+
+	return nil
+}
+
+// AddRebaseJobs adds the given related objects to the existing relationships
 // of the change_request, optionally inserting them as new records.
-// Appends related to o.R.StatusEvents.
+// Appends related to o.R.RebaseJobs.
 // Sets related.R.ChangeRequest appropriately.
-func (o *ChangeRequest) AddStatusEvents(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*StatusEvent) error {
+func (o *ChangeRequest) AddRebaseJobs(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*RebaseJob) error {
 	var err error
 	for _, rel := range related {
 		if insert {
-			queries.Assign(&rel.ChangeRequestID, o.ID)
+			rel.ChangeRequestID = o.ID
 			if err = rel.Insert(ctx, exec, boil.Infer()); err != nil {
 				return errors.Wrap(err, "failed to insert into foreign table")
 			}
 		} else {
 			updateQuery := fmt.Sprintf(
-				"UPDATE \"status_events\" SET %s WHERE %s",
+				"UPDATE \"rebase_jobs\" SET %s WHERE %s",
 				strmangle.SetParamNames("\"", "\"", 1, []string{"change_request_id"}),
-				strmangle.WhereClause("\"", "\"", 2, statusEventPrimaryKeyColumns),
+				strmangle.WhereClause("\"", "\"", 2, rebaseJobPrimaryKeyColumns),
 			)
 			values := []interface{}{o.ID, rel.ID}
 
@@ -702,21 +881,21 @@ func (o *ChangeRequest) AddStatusEvents(ctx context.Context, exec boil.ContextEx
 				return errors.Wrap(err, "failed to update foreign table")
 			}
 
-			queries.Assign(&rel.ChangeRequestID, o.ID)
+			rel.ChangeRequestID = o.ID
 		}
 	}
 
 	if o.R == nil {
 		o.R = &changeRequestR{
-			StatusEvents: related,
+			RebaseJobs: related,
 		}
 	} else {
-		o.R.StatusEvents = append(o.R.StatusEvents, related...)
+		o.R.RebaseJobs = append(o.R.RebaseJobs, related...)
 	}
 
 	for _, rel := range related {
 		if rel.R == nil {
-			rel.R = &statusEventR{
+			rel.R = &rebaseJobR{
 				ChangeRequest: o,
 			}
 		} else {
@@ -726,77 +905,56 @@ func (o *ChangeRequest) AddStatusEvents(ctx context.Context, exec boil.ContextEx
 	return nil
 }
 
-// SetStatusEvents removes all previously related items of the
-// change_request replacing them completely with the passed
-// in related items, optionally inserting them as new records.
-// Sets o.R.ChangeRequest's StatusEvents accordingly.
-// Replaces o.R.StatusEvents with related.
-// Sets related.R.ChangeRequest's StatusEvents accordingly.
-func (o *ChangeRequest) SetStatusEvents(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*StatusEvent) error {
-	query := "update \"status_events\" set \"change_request_id\" = null where \"change_request_id\" = $1"
-	values := []interface{}{o.ID}
-	if boil.IsDebug(ctx) {
-		writer := boil.DebugWriterFrom(ctx)
-		fmt.Fprintln(writer, query)
-		fmt.Fprintln(writer, values)
-	}
-	_, err := exec.ExecContext(ctx, query, values...)
-	if err != nil {
-		return errors.Wrap(err, "failed to remove relationships before set")
-	}
-
-	if o.R != nil {
-		for _, rel := range o.R.StatusEvents {
-			queries.SetScanner(&rel.ChangeRequestID, nil)
-			if rel.R == nil {
-				continue
-			}
-
-			rel.R.ChangeRequest = nil
-		}
-		o.R.StatusEvents = nil
-	}
-
-	return o.AddStatusEvents(ctx, exec, insert, related...)
-}
-
-// RemoveStatusEvents relationships from objects passed in.
-// Removes related items from R.StatusEvents (uses pointer comparison, removal does not keep order)
-// Sets related.R.ChangeRequest.
-func (o *ChangeRequest) RemoveStatusEvents(ctx context.Context, exec boil.ContextExecutor, related ...*StatusEvent) error {
-	if len(related) == 0 {
-		return nil
-	}
-
+// AddTMTJobs adds the given related objects to the existing relationships
+// of the change_request, optionally inserting them as new records.
+// Appends related to o.R.TMTJobs.
+// Sets related.R.ChangeRequest appropriately.
+func (o *ChangeRequest) AddTMTJobs(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*TMTJob) error {
 	var err error
 	for _, rel := range related {
-		queries.SetScanner(&rel.ChangeRequestID, nil)
-		if rel.R != nil {
-			rel.R.ChangeRequest = nil
-		}
-		if _, err = rel.Update(ctx, exec, boil.Whitelist("change_request_id")); err != nil {
-			return err
+		if insert {
+			rel.ChangeRequestID = o.ID
+			if err = rel.Insert(ctx, exec, boil.Infer()); err != nil {
+				return errors.Wrap(err, "failed to insert into foreign table")
+			}
+		} else {
+			updateQuery := fmt.Sprintf(
+				"UPDATE \"tmt_jobs\" SET %s WHERE %s",
+				strmangle.SetParamNames("\"", "\"", 1, []string{"change_request_id"}),
+				strmangle.WhereClause("\"", "\"", 2, tmtJobPrimaryKeyColumns),
+			)
+			values := []interface{}{o.ID, rel.ID}
+
+			if boil.IsDebug(ctx) {
+				writer := boil.DebugWriterFrom(ctx)
+				fmt.Fprintln(writer, updateQuery)
+				fmt.Fprintln(writer, values)
+			}
+			if _, err = exec.ExecContext(ctx, updateQuery, values...); err != nil {
+				return errors.Wrap(err, "failed to update foreign table")
+			}
+
+			rel.ChangeRequestID = o.ID
 		}
 	}
+
 	if o.R == nil {
-		return nil
+		o.R = &changeRequestR{
+			TMTJobs: related,
+		}
+	} else {
+		o.R.TMTJobs = append(o.R.TMTJobs, related...)
 	}
 
 	for _, rel := range related {
-		for i, ri := range o.R.StatusEvents {
-			if rel != ri {
-				continue
+		if rel.R == nil {
+			rel.R = &tmtJobR{
+				ChangeRequest: o,
 			}
-
-			ln := len(o.R.StatusEvents)
-			if ln > 1 && i < ln-1 {
-				o.R.StatusEvents[i] = o.R.StatusEvents[ln-1]
-			}
-			o.R.StatusEvents = o.R.StatusEvents[:ln-1]
-			break
+		} else {
+			rel.R.ChangeRequest = o
 		}
 	}
-
 	return nil
 }
 
