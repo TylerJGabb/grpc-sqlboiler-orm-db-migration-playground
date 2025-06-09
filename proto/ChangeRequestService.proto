@@ -36,7 +36,7 @@ message CreateTMTProjectRequest {
   string project_name = 1;
   string orchestration_repository = 2;
   string application = 3;
-  string dv01_domain = 4;
+  string tenant_domain = 4;
   string user_email = 5;
 }
 
@@ -97,7 +97,7 @@ message TMTJob {
   string project_name = 2;
   string orchestration_repository = 3;
   string application = 4;
-  string dv01_domain = 5;
+  string tenant_domain = 5;
   string user_email = 6;
   google.protobuf.Timestamp created_at = 7;
   google.protobuf.Timestamp completed_at = 8;

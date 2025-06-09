@@ -11,7 +11,7 @@ type CreateTMTPR struct {
 	ChangeRequestId int
 }
 
-// see example at https://github.com/dv01-inc/dynamic-sandbox-api/blob/main/messaging/cloudrun/cloudrun.go#L47
+// see example at https://github.com/example-inc/dynamic-sandbox-api/blob/main/messaging/cloudrun/cloudrun.go#L47
 func (c *CreateTMTPR) ToRunJobRequest(jobFqn string) *runpb.RunJobRequest {
 	return &runpb.RunJobRequest{
 		Name: jobFqn,

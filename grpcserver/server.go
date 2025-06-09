@@ -102,7 +102,7 @@ func (s *Server) CreateTMTProject(
 		ProjectName:             req.ProjectName,
 		OrchestrationRepository: req.OrchestrationRepository,
 		Application:             req.Application,
-		DV01Domain:              req.Dv01Domain,
+		TenantDomain:            req.TenantDomain,
 		UserEmail:               req.UserEmail,
 		Status:                  crspb.JobStatus_PENDING.String(),
 	}

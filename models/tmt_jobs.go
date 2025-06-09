@@ -29,7 +29,7 @@ type TMTJob struct {
 	ProjectName             string      `boil:"project_name" json:"project_name" toml:"project_name" yaml:"project_name"`
 	OrchestrationRepository string      `boil:"orchestration_repository" json:"orchestration_repository" toml:"orchestration_repository" yaml:"orchestration_repository"`
 	Application             string      `boil:"application" json:"application" toml:"application" yaml:"application"`
-	DV01Domain              string      `boil:"dv01_domain" json:"dv01_domain" toml:"dv01_domain" yaml:"dv01_domain"`
+	TenantDomain            string      `boil:"tenant_domain" json:"tenant_domain" toml:"tenant_domain" yaml:"tenant_domain"`
 	UserEmail               string      `boil:"user_email" json:"user_email" toml:"user_email" yaml:"user_email"`
 	CreatedAt               time.Time   `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
 	CompletedAt             null.Time   `boil:"completed_at" json:"completed_at,omitempty" toml:"completed_at" yaml:"completed_at,omitempty"`
@@ -46,7 +46,7 @@ var TMTJobColumns = struct {
 	ProjectName             string
 	OrchestrationRepository string
 	Application             string
-	DV01Domain              string
+	TenantDomain            string
 	UserEmail               string
 	CreatedAt               string
 	CompletedAt             string
@@ -58,7 +58,7 @@ var TMTJobColumns = struct {
 	ProjectName:             "project_name",
 	OrchestrationRepository: "orchestration_repository",
 	Application:             "application",
-	DV01Domain:              "dv01_domain",
+	TenantDomain:            "tenant_domain",
 	UserEmail:               "user_email",
 	CreatedAt:               "created_at",
 	CompletedAt:             "completed_at",
@@ -72,7 +72,7 @@ var TMTJobTableColumns = struct {
 	ProjectName             string
 	OrchestrationRepository string
 	Application             string
-	DV01Domain              string
+	TenantDomain            string
 	UserEmail               string
 	CreatedAt               string
 	CompletedAt             string
@@ -84,7 +84,7 @@ var TMTJobTableColumns = struct {
 	ProjectName:             "tmt_jobs.project_name",
 	OrchestrationRepository: "tmt_jobs.orchestration_repository",
 	Application:             "tmt_jobs.application",
-	DV01Domain:              "tmt_jobs.dv01_domain",
+	TenantDomain:            "tmt_jobs.tenant_domain",
 	UserEmail:               "tmt_jobs.user_email",
 	CreatedAt:               "tmt_jobs.created_at",
 	CompletedAt:             "tmt_jobs.completed_at",
@@ -100,7 +100,7 @@ var TMTJobWhere = struct {
 	ProjectName             whereHelperstring
 	OrchestrationRepository whereHelperstring
 	Application             whereHelperstring
-	DV01Domain              whereHelperstring
+	TenantDomain            whereHelperstring
 	UserEmail               whereHelperstring
 	CreatedAt               whereHelpertime_Time
 	CompletedAt             whereHelpernull_Time
@@ -112,7 +112,7 @@ var TMTJobWhere = struct {
 	ProjectName:             whereHelperstring{field: "\"tmt_jobs\".\"project_name\""},
 	OrchestrationRepository: whereHelperstring{field: "\"tmt_jobs\".\"orchestration_repository\""},
 	Application:             whereHelperstring{field: "\"tmt_jobs\".\"application\""},
-	DV01Domain:              whereHelperstring{field: "\"tmt_jobs\".\"dv01_domain\""},
+	TenantDomain:            whereHelperstring{field: "\"tmt_jobs\".\"tenant_domain\""},
 	UserEmail:               whereHelperstring{field: "\"tmt_jobs\".\"user_email\""},
 	CreatedAt:               whereHelpertime_Time{field: "\"tmt_jobs\".\"created_at\""},
 	CompletedAt:             whereHelpernull_Time{field: "\"tmt_jobs\".\"completed_at\""},
@@ -148,8 +148,8 @@ func (r *tmtJobR) GetChangeRequest() *ChangeRequest {
 type tmtJobL struct{}
 
 var (
-	tmtJobAllColumns            = []string{"id", "change_request_id", "project_name", "orchestration_repository", "application", "dv01_domain", "user_email", "created_at", "completed_at", "status", "status_message"}
-	tmtJobColumnsWithoutDefault = []string{"change_request_id", "project_name", "orchestration_repository", "application", "dv01_domain", "user_email", "status"}
+	tmtJobAllColumns            = []string{"id", "change_request_id", "project_name", "orchestration_repository", "application", "tenant_domain", "user_email", "created_at", "completed_at", "status", "status_message"}
+	tmtJobColumnsWithoutDefault = []string{"change_request_id", "project_name", "orchestration_repository", "application", "tenant_domain", "user_email", "status"}
 	tmtJobColumnsWithDefault    = []string{"id", "created_at", "completed_at", "status_message"}
 	tmtJobPrimaryKeyColumns     = []string{"id"}
 	tmtJobGeneratedColumns      = []string{}

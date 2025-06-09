@@ -53,7 +53,7 @@ func main() {
 	flag.Parse()
 
 	cr := &models.ChangeRequest{
-		CreatedBy: "tyler@dv01.co", // get this from request
+		CreatedBy: "tyler@example.com", // get this from request
 		Type:      crspb.ChangeRequestType_CRT_TMT.String(),
 	}
 	err = cr.Insert(
@@ -68,7 +68,7 @@ func main() {
 		ProjectName:             "foobarbaz",
 		OrchestrationRepository: "some repo",
 		Application:             "some app",
-		DV01Domain:              "some domain",
+		TenantDomain:            "some domain",
 		UserEmail:               "alice",
 		Status:                  crspb.JobStatus_PENDING.String(),
 	}

@@ -6,7 +6,7 @@ CREATE TABLE tmt_jobs(
   project_name VARCHAR(255) NOT NULL,
   orchestration_repository VARCHAR(255) NOT NULL,
   application VARCHAR(255) NOT NULL,
-  dv01_domain VARCHAR(255) NOT NULL,
+  tenant_domain VARCHAR(255) NOT NULL,
   user_email VARCHAR(255) NOT NULL,
 
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -23,7 +23,7 @@ INSERT INTO tmt_jobs (
   project_name,
   orchestration_repository,
   application,
-  dv01_domain,user_email,
+  tenant_domain,user_email,
   status,
   status_message,
   completed_at
