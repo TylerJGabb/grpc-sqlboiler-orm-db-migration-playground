@@ -1,0 +1,26 @@
+sequenceDiagram
+    participant bff as BFF
+    participant api as API
+    participant db as DB
+    participant r as RUNNER
+
+    bff ->> api: Create TMT
+    api ->> db: insert change request
+    db -->> api: 
+    api ->> db: insert tmt-job status=pending
+    db -->> api: 
+    api ->> r: execute cr-id=123 job-id=456 type=create-tmt
+    r -->> api: started
+    api ->> bff: accepted
+
+    r ->> api: give me cr=123 and tmt-job=456
+    api ->> db: lookup
+    db -->> api: 
+    api ->> r: here you go
+    r -->> api: 
+
+    r ->> r: handle cr and tmt-job
+
+    r ->> api: report tmt-job and change-request result
+    api ->> db: update records
+    db -->> api: 
